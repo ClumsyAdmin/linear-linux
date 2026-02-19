@@ -4,7 +4,9 @@
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicU32, Ordering};
 use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
+use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut};
 
 #[derive(Serialize, Deserialize, Default)]
 struct WindowState {
@@ -29,7 +31,7 @@ fn load_window_state(app: &tauri::AppHandle) -> WindowState {
         .unwrap_or_default()
 }
 
-fn save_window_state(app: &tauri::AppHandle, window: &tauri::WebviewWindow) {
+fn save_window_state(app: &tauri::AppHandle, window: &tauri::Window) {
     let path = state_file_path(app);
     if let Ok(pos) = window.outer_position() {
         if let Ok(size) = window.outer_size() {
@@ -64,12 +66,38 @@ fn create_window(app: &tauri::AppHandle, label: &str, state: WindowState) {
     let _ = builder.build();
 }
 
+static WINDOW_COUNTER: AtomicU32 = AtomicU32::new(1);
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .setup(|app| {
             let state = load_window_state(app.handle());
             create_window(app.handle(), "main", state);
+
+            // Register Ctrl+Shift+N for new windows
+            let shortcut = Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::KeyN);
+            app.global_shortcut().on_shortcut(shortcut, move |app, _shortcut, event| {
+                if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
+                    let mut state = WindowState::default();
+
+                    // Offset from the focused window if one exists
+                    if let Some(focused) = app.webview_windows().values().find(|w| w.is_focused().unwrap_or(false)) {
+                        if let (Ok(pos), Ok(size)) = (focused.outer_position(), focused.outer_size()) {
+                            state = WindowState {
+                                width: Some(size.width as f64),
+                                height: Some(size.height as f64),
+                                x: Some(pos.x as f64 + 30.0),
+                                y: Some(pos.y as f64 + 30.0),
+                            };
+                        }
+                    }
+
+                    let id = WINDOW_COUNTER.fetch_add(1, Ordering::Relaxed);
+                    create_window(app, &format!("window-{}", id), state);
+                }
+            })?;
+
             Ok(())
         })
         .on_window_event(|window, event| {
