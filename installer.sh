@@ -3,7 +3,7 @@
 set -euo pipefail
 
 VERSION="${VERSION:-0.2.3}"
-DEB_URL="${DEB_URL:-https://github.com/kleo-dev/linear-linux/releases/download/v${VERSION}/linear_${VERSION}_amd64.deb}"
+DEB_URL="${DEB_URL:-https://github.com/zacharyftw/linear-linux/releases/download/v${VERSION}/linear_${VERSION}_amd64.deb}"
 BINARY_NAME="linear"
 INSTALL_DIR="/opt/linear-linux-${VERSION}"
 WRAPPER_PATH="/usr/local/bin/${BINARY_NAME}"

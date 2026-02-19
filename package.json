@@ -8,15 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kleo-dev/linear-linux.git"
+    "url": "git+https://github.com/zacharyftw/linear-linux.git"
   },
   "keywords": [],
   "author": "Linear Linux <linear@example.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/kleo-dev/linear-linux/issues"
+    "url": "https://github.com/zacharyftw/linear-linux/issues"
   },
-  "homepage": "https://github.com/kleo-dev/linear-linux#readme",
+  "homepage": "https://github.com/zacharyftw/linear-linux#readme",
   "devDependencies": {
     "@tauri-apps/cli": "^2"
   }

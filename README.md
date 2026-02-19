@@ -7,7 +7,7 @@ A Linux desktop client for <a href="https://linear.app/">linear.app</a>, built w
 </p>
 
 <p align="center">
-<img alt="GitHub release" src="https://img.shields.io/github/v/release/kleo-dev/linear-linux?color=%23f5304c">
+<img alt="GitHub release" src="https://img.shields.io/github/v/release/zacharyftw/linear-linux?color=%23f5304c">
 </p>
 
 # Install
@@ -15,7 +15,7 @@ A Linux desktop client for <a href="https://linear.app/">linear.app</a>, built w
 Requires `sudo` (for desktop entry and icons).
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/kleo-dev/linear-linux/refs/heads/master/installer.sh | bash
+wget -qO- https://raw.githubusercontent.com/zacharyftw/linear-linux/refs/heads/master/installer.sh | bash
 ```
 
 The installer:
@@ -39,7 +39,7 @@ npm run build   # produce AppImage and .deb in src-tauri/target/release/bundle/
 
 # Having an issue?
 
-Describe your issue [here](https://github.com/kleo-dev/linear-linux/issues)
+Describe your issue [here](https://github.com/zacharyftw/linear-linux/issues)
 
 # Disclaimer
 
