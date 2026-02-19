@@ -24,14 +24,26 @@ jobs:
         with:
           persist-credentials: true
 
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install Tauri CLI
+        run: npm install
 
       - name: Bump version and tag
         id: bump
@@ -40,17 +52,20 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          npm version "${BUMP:-patch}" -m "chore: release %s"
+          npm version "${BUMP:-patch}" --no-git-tag-version
           VERSION=$(node -p "require('./package.json').version")
+          # Sync version to Cargo.toml and tauri.conf.json
+          sed -i "s/^version = \".*\"/version = \"${VERSION}\"/" src-tauri/Cargo.toml
+          sed -i "s/\"version\": \".*\"/\"version\": \"${VERSION}\"/" src-tauri/tauri.conf.json
+          git add -A
+          git commit -m "chore: release ${VERSION}"
+          git tag "v${VERSION}"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           git push
           git push --tags
 
       - name: Build artifacts
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          npm run build
+        run: npx tauri build
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -60,6 +75,5 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            dist/*.AppImage
-            dist/*.deb
-            dist/*.rpm
+            src-tauri/target/release/bundle/appimage/*.AppImage
+            src-tauri/target/release/bundle/deb/*.deb
